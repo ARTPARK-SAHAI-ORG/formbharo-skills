@@ -32,7 +32,7 @@ npx skills add ARTPARK-SAHAI-ORG/formbharo-skills --agent codex
 See what is in here before installing:
 
 ```bash
-npx skills list ARTPARK-SAHAI-ORG/formbharo-skills
+npx skills add ARTPARK-SAHAI-ORG/formbharo-skills --list
 ```
 
 Restart your session after installing so the skill is picked up.
@@ -41,18 +41,18 @@ Restart your session after installing so the skill is picked up.
 
 ```bash
 git clone https://github.com/ARTPARK-SAHAI-ORG/formbharo-skills.git
-cp -r formbharo-skills/skills ~/.claude/skills/formbharo-skills
+cp -r formbharo-skills/skills/formbharo ~/.claude/skills/formbharo
 ```
 
 Use `.cursor/skills/` for Cursor, and the equivalent directory for other tools.
-Copy the whole `skills/` tree, not just the one folder, because `SKILL.md` links
-to files in `skills/references/`.
+Copy the whole `formbharo` folder, not just `SKILL.md`, because `SKILL.md` links to
+the files in its `references/` folder.
 
 ## What is here
 
 ```
-skills/
-  formbharo/SKILL.md                    the skill
+skills/formbharo/
+  SKILL.md                              the skill
   references/agent-config.md            the shape of an agent: questions, validation, branches
   references/recipes.md                 four jobs, start to finish, with commands that were run
   references/talking-about-results.md   how to report numbers to a person without misleading them

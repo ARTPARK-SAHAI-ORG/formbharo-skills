@@ -39,7 +39,7 @@ everything the person who made it can do, except create or revoke other keys.
 
 Two requests need no key at all, so a page you build yourself can use them without
 holding a secret: reading one call's answers, and correcting them. Both are in
-[`../references/recipes.md`](../references/recipes.md).
+[`references/recipes.md`](references/recipes.md).
 
 ## Find the endpoints in the schema, not here
 
@@ -56,15 +56,15 @@ longer exists. Read the schema first, then build the request.
 
 ## Where to go next
 
-- [`../references/agent-config.md`](../references/agent-config.md): the shape of an
+- [`references/agent-config.md`](references/agent-config.md): the shape of an
   agent. Question types, the words the agent speaks, validation, what happens when
   an answer does not come through, and asking a question only when an earlier answer
   went a certain way.
-- [`../references/recipes.md`](../references/recipes.md): four jobs from start to
+- [`references/recipes.md`](references/recipes.md): four jobs from start to
   finish, with commands that were run against a real server. Build an agent from a
   description of a form. Pull last week's calls and summarise the answers. Export
   the answers to a spreadsheet. Run a call from your own page.
-- [`../references/talking-about-results.md`](../references/talking-about-results.md):
+- [`references/talking-about-results.md`](references/talking-about-results.md):
   how to report the numbers to a person without misleading them.
 
 ## Gotchas
