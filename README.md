@@ -60,17 +60,19 @@ skills/formbharo/
 
 ## Before you use it
 
-You need two things:
-
-- `FORMBHARO_API_KEY`: create one in the web app under Settings, then the API keys
-  tab. The token is shown once and never again. It starts with `fb_live_`.
-- `FORMBHARO_API_URL`: the address of your FormBharo API. It is not the same
-  address as the web app. Ask whoever runs your FormBharo server.
-
-Check both are right with one request:
+You need one thing: `FORMBHARO_API_KEY`. Create one in the web app by clicking your
+profile picture in the top right, then **API keys**. The token is shown once and
+never again. It starts with `fb_live_`.
 
 ```bash
-curl -s -H "Authorization: Bearer $FORMBHARO_API_KEY" "$FORMBHARO_API_URL/api/v1/agents"
+export FORMBHARO_API_KEY=fb_live_...
+```
+
+Check the key works:
+
+```bash
+curl -s -H "Authorization: Bearer $FORMBHARO_API_KEY" \
+  https://api.formbharo.artpark.ai/api/v1/agents
 ```
 
 A list of your agents, or `[]` if you have none yet, means you are set up.
@@ -80,10 +82,11 @@ A list of your agents, or `[]` if you have none yet, means you are set up.
 The endpoint list is served by the server itself and needs no key:
 
 ```bash
-curl -s "$FORMBHARO_API_URL/api/v1/openapi.json"
+curl -s https://api.formbharo.artpark.ai/api/v1/openapi.json
 ```
 
-There is a browsable version of the same thing at `$FORMBHARO_API_URL/api/v1/docs`.
+There is a browsable version of the same thing at
+https://api.formbharo.artpark.ai/api/v1/docs.
 
 ## License
 

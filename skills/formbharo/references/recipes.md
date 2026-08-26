@@ -8,7 +8,6 @@ are from that run. They are examples. Swap in your own.
 All commands assume:
 
 ```bash
-export FORMBHARO_API_URL=https://your-formbharo-api-address
 export FORMBHARO_API_KEY=fb_live_...
 ```
 
@@ -89,7 +88,7 @@ Save this as `agent.json`:
 Create it:
 
 ```bash
-curl -s -X POST "$FORMBHARO_API_URL/api/v1/agents" \
+curl -s -X POST "https://api.formbharo.artpark.ai/api/v1/agents" \
   -H "Authorization: Bearer $FORMBHARO_API_KEY" \
   -H "Content-Type: application/json" \
   --data @agent.json
@@ -103,7 +102,7 @@ That agent is a draft, and nobody can start a call from a draft. Send the same b
 again to publish it:
 
 ```bash
-curl -s -X PUT "$FORMBHARO_API_URL/api/v1/agents/ae407c7d-ba18-4c40-b290-b14567e64ca5" \
+curl -s -X PUT "https://api.formbharo.artpark.ai/api/v1/agents/ae407c7d-ba18-4c40-b290-b14567e64ca5" \
   -H "Authorization: Bearer $FORMBHARO_API_KEY" \
   -H "Content-Type: application/json" \
   --data @agent.json
@@ -117,7 +116,7 @@ Check what was saved:
 
 ```bash
 curl -s -H "Authorization: Bearer $FORMBHARO_API_KEY" \
-  "$FORMBHARO_API_URL/api/v1/agents/ae407c7d-ba18-4c40-b290-b14567e64ca5"
+  "https://api.formbharo.artpark.ai/api/v1/agents/ae407c7d-ba18-4c40-b290-b14567e64ca5"
 ```
 
 Some keys come back under different names than you sent. `question` is saved as
@@ -138,7 +137,7 @@ SINCE=$(date -v-7d +%s)             # macOS
 # SINCE=$(date -d '7 days ago' +%s) # Linux
 
 curl -s -H "Authorization: Bearer $FORMBHARO_API_KEY" \
-  "$FORMBHARO_API_URL/api/v1/conversations?since=$SINCE&limit=200" > week.json
+  "https://api.formbharo.artpark.ai/api/v1/conversations?since=$SINCE&limit=200" > week.json
 ```
 
 `since` and `until` are unix seconds. The other filters are `agent_id`,
@@ -209,10 +208,10 @@ One row per call, one column per question, in the order the agent asks them.
 AGENT=ae407c7d-ba18-4c40-b290-b14567e64ca5
 
 curl -s -H "Authorization: Bearer $FORMBHARO_API_KEY" \
-  "$FORMBHARO_API_URL/api/v1/agents/$AGENT" > agent_config.json
+  "https://api.formbharo.artpark.ai/api/v1/agents/$AGENT" > agent_config.json
 
 curl -s -H "Authorization: Bearer $FORMBHARO_API_KEY" \
-  "$FORMBHARO_API_URL/api/v1/conversations?agent_id=$AGENT&limit=200" > calls.json
+  "https://api.formbharo.artpark.ai/api/v1/conversations?agent_id=$AGENT&limit=200" > calls.json
 
 jq -r --slurpfile cfg agent_config.json '
   [$cfg[0].questions[].name] as $fields
@@ -270,7 +269,7 @@ without holding a secret.
 Show the questions on your own page before the call starts:
 
 ```bash
-curl -s "$FORMBHARO_API_URL/api/v1/agents/ae407c7d-ba18-4c40-b290-b14567e64ca5/public"
+curl -s "https://api.formbharo.artpark.ai/api/v1/agents/ae407c7d-ba18-4c40-b290-b14567e64ca5/public"
 ```
 
 ```json
@@ -280,7 +279,7 @@ curl -s "$FORMBHARO_API_URL/api/v1/agents/ae407c7d-ba18-4c40-b290-b14567e64ca5/p
 Read back what one call collected, given the agent id and the call id:
 
 ```bash
-curl -s "$FORMBHARO_API_URL/api/v1/data/ae407c7d-ba18-4c40-b290-b14567e64ca5/2f3a1b40-0003-4c11-9a01-aaaaaaaa0003"
+curl -s "https://api.formbharo.artpark.ai/api/v1/data/ae407c7d-ba18-4c40-b290-b14567e64ca5/2f3a1b40-0003-4c11-9a01-aaaaaaaa0003"
 ```
 
 ```json
@@ -292,7 +291,7 @@ Correct an answer, for example when the person types a fix into your page afterw
 
 ```bash
 curl -s -X PATCH \
-  "$FORMBHARO_API_URL/api/v1/agents/ae407c7d-ba18-4c40-b290-b14567e64ca5/conversations/2f3a1b40-0003-4c11-9a01-aaaaaaaa0003/form_data" \
+  "https://api.formbharo.artpark.ai/api/v1/agents/ae407c7d-ba18-4c40-b290-b14567e64ca5/conversations/2f3a1b40-0003-4c11-9a01-aaaaaaaa0003/form_data" \
   -H "Content-Type: application/json" \
   -d '{"updates":{"age":44}}'
 ```
