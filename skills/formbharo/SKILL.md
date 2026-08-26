@@ -19,40 +19,66 @@ read all of that back over the API.
 
 ## Setup
 
-Two values, both from the environment:
+The API is at `https://api.formbharo.artpark.ai`. That address is the same for
+everyone. It is not the address of the web app.
 
-- `FORMBHARO_API_KEY`: the key, which starts with `fb_live_`.
-- `FORMBHARO_API_URL`: the address of the FormBharo API. It is not the same address
-  as the web app.
+One value comes from the environment: `FORMBHARO_API_KEY`, the key, which starts
+with `fb_live_`. To make one, the user signs in to FormBharo, clicks their profile
+picture in the top right, then **API keys**. The token is shown once and never
+again. A key can do everything the person who made it can do, except create or
+revoke other keys.
 
-If either is missing, ask the user for it. Do not guess the address.
-
-The key goes on every request:
+Before doing anything else, check the key works:
 
 ```bash
-curl -s -H "Authorization: Bearer $FORMBHARO_API_KEY" "$FORMBHARO_API_URL/api/v1/agents"
+curl -s -H "Authorization: Bearer $FORMBHARO_API_KEY" \
+  https://api.formbharo.artpark.ai/api/v1/agents
 ```
 
-To make a key, the user signs in to FormBharo, opens Settings, then the API keys
-tab, and creates one. The token is shown once and never again. A key can do
-everything the person who made it can do, except create or revoke other keys.
+A list back, even an empty `[]`, means the key is good. A 401 means the key is
+missing or wrong: ask the user for it, and do not go on until this call returns a
+list.
+
+The key goes on every request that needs one.
 
 Two requests need no key at all, so a page you build yourself can use them without
 holding a secret: reading one call's answers, and correcting them. Both are in
 [`references/recipes.md`](references/recipes.md).
 
-## Find the endpoints in the schema, not here
+## The endpoints
 
-There is no endpoint list in this file on purpose. Fetch it:
+| Method | Path |
+|---|---|
+| `GET`, `POST` | `/api/v1/agents` |
+| `GET`, `PUT`, `DELETE` | `/api/v1/agents/{agent_id}` |
+| `PUT` | `/api/v1/agents/{agent_id}/config` |
+| `GET`, `PUT` | `/api/v1/agents/{agent_id}/access` |
+| `GET` | `/api/v1/agents/{agent_id}/analytics` |
+| `GET` | `/api/v1/agents/{agent_id}/public` |
+| `GET` | `/api/v1/agents/{agent_id}/conversations` |
+| `GET` | `/api/v1/agents/{agent_id}/conversations/{conversation_id}/transcript` |
+| `PATCH` | `/api/v1/agents/{agent_id}/conversations/{conversation_id}/form_data` |
+| `GET`, `POST` | `/api/v1/conversations` |
+| `GET` | `/api/v1/data/{agent_id}/{conversation_id}` |
+| `GET`, `POST` | `/api/v1/workspaces` |
+| `GET`, `PUT` | `/api/v1/workspaces/{workspace_id}` |
+| `GET` | `/api/v1/workspaces/{workspace_id}/analytics` |
+
+For the exact fields a request or response uses, read the live schema for that one
+path. It needs no key:
 
 ```bash
-curl -s "$FORMBHARO_API_URL/api/v1/openapi.json"
+curl -s https://api.formbharo.artpark.ai/api/v1/openapi.json \
+  | jq '.paths."/api/v1/agents"'
 ```
 
-That needs no key. It is generated from the running server, so it always matches
-what is actually there. A list written down in this file would slowly drift out of
-date as the API changes, and you would build a request against something that no
-longer exists. Read the schema first, then build the request.
+Fetch one path, not the whole file: the whole file is over 100 KB. The schema is
+generated from the running server, so it is what is actually there. If a path in
+the table above is not in the schema, trust the schema.
+
+Four common jobs are already written out end to end in
+[`references/recipes.md`](references/recipes.md). If the request is one of those,
+start there and skip the schema.
 
 ## Where to go next
 
@@ -93,7 +119,7 @@ new calls, ask again on a timer:
 
 ```bash
 curl -s -H "Authorization: Bearer $FORMBHARO_API_KEY" \
-  "$FORMBHARO_API_URL/api/v1/conversations?since=1787626937&limit=200"
+  "https://api.formbharo.artpark.ai/api/v1/conversations?since=1787626937&limit=200"
 ```
 
 `since` is unix seconds, and it is an example number here. Move it forward to the
