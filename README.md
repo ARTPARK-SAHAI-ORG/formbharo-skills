@@ -64,9 +64,9 @@ Make an API key. Sign in at https://formbharo.artpark.ai, click your profile
 picture in the top right, then **API keys**. The key is shown once and never
 again. It starts with `fb_live_`.
 
-Keep it to hand and start asking your tool for FormBharo things. The first time it
-needs the key it will ask you for it. Paste it in and it saves it, so you only do
-that once.
+Keep the key to hand. Ask your tool to build an agent, or to read the answers from
+your calls. The first time it needs the key it will ask you for it. Paste it in and
+it saves the key, so you only do that once.
 
 To check a key yourself, put it in `FORMBHARO_API_KEY` and run:
 
