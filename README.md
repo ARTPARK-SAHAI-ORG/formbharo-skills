@@ -60,23 +60,22 @@ skills/formbharo/
 
 ## Before you use it
 
-You need one thing: an API key. Create one in the web app by clicking your profile
+Make an API key. Sign in at https://formbharo.artpark.ai, click your profile
 picture in the top right, then **API keys**. The key is shown once and never
 again. It starts with `fb_live_`.
 
-There is nothing for you to run. Ask your tool for anything to do with FormBharo,
-and the first time it needs the key it will ask you for it. Paste it in. It saves
-the key for you and never asks again.
+Keep it to hand and start asking your tool for FormBharo things. The first time it
+needs the key it will ask you for it. Paste it in and it saves it, so you only do
+that once.
 
-If you would rather set it yourself, it lives in an environment variable named
-`FORMBHARO_API_KEY`. Check it works:
+To check a key yourself, put it in `FORMBHARO_API_KEY` and run:
 
 ```bash
 curl -s -H "Authorization: Bearer $FORMBHARO_API_KEY" \
   https://api.formbharo.artpark.ai/api/v1/agents
 ```
 
-A list of your agents, or `[]` if you have none yet, means you are set up.
+A list of your agents, or `[]` if you have none yet, means the key works.
 
 ## API reference
 
