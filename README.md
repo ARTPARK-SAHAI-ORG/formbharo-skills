@@ -5,7 +5,7 @@ FormBharo runs voice agents that fill in a form by talking to someone on a call.
 
 They teach a coding agent how to build an agent, edit it, pull the answers
 people gave, and read the numbers back. They follow the
-[Agent Skills](https://agentskills.io) open standard, so it works with Claude Code,
+[Agent Skills](https://agentskills.io) open standard, so they work with Claude Code,
 Cursor, Windsurf, Codex, and other compatible tools.
 
 This repository is public. You do not need any credentials to install it.
@@ -44,8 +44,8 @@ Restart your session after installing so the skills are picked up.
 ```
 
 It asks what you want to find out on the call, builds the agent, and gives you a
-link you can ring up and try. Nothing to set up first. It asks for your API key
-along the way and saves it, so you are asked once and never again.
+link you can ring up and try. It asks for your API key along the way and saves it,
+so you paste it once.
 
 After that first agent, just say what you want in your own words. "Add a question
 about age." "Show me last week's calls." "Put the answers in a spreadsheet."
