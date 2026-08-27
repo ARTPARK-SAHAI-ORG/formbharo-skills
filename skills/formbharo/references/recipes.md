@@ -5,11 +5,8 @@ key, and the output shown is what came back. The agent id
 `ae407c7d-ba18-4c40-b290-b14567e64ca5` and the call ids starting with `2f3a1b40-`
 are from that run. They are examples. Swap in your own.
 
-All commands assume:
-
-```bash
-export FORMBHARO_API_KEY=fb_live_...
-```
+All commands assume `FORMBHARO_API_KEY` holds a `fb_live_` key. Saving it once is
+in the Setup section of [`../SKILL.md`](../SKILL.md).
 
 ---
 

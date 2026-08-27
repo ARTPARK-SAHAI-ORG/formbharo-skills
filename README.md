@@ -60,15 +60,16 @@ skills/formbharo/
 
 ## Before you use it
 
-You need one thing: `FORMBHARO_API_KEY`. Create one in the web app by clicking your
-profile picture in the top right, then **API keys**. The token is shown once and
-never again. It starts with `fb_live_`.
+You need one thing: an API key. Create one in the web app by clicking your profile
+picture in the top right, then **API keys**. The key is shown once and never
+again. It starts with `fb_live_`.
 
-```bash
-export FORMBHARO_API_KEY=fb_live_...
-```
+There is nothing for you to run. Ask your tool for anything to do with FormBharo,
+and the first time it needs the key it will ask you for it. Paste it in. It saves
+the key for you and never asks again.
 
-Check the key works:
+If you would rather set it yourself, it lives in an environment variable named
+`FORMBHARO_API_KEY`. Check it works:
 
 ```bash
 curl -s -H "Authorization: Bearer $FORMBHARO_API_KEY" \

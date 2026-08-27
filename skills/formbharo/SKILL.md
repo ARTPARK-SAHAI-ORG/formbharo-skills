@@ -34,9 +34,38 @@ curl -s -H "Authorization: Bearer $FORMBHARO_API_KEY" \
   https://api.formbharo.artpark.ai/api/v1/agents
 ```
 
-A list back, even an empty `[]`, means the key is good. A 401 means the key is
-missing or wrong: ask the user for it, and do not go on until this call returns a
-list.
+A list back, even an empty `[]`, means the key is good. A 401, or an empty
+variable, means there is no working key: ask the user for one, and do not go on
+until this call returns a list.
+
+### Save the key the moment the user gives it
+
+Do this before anything else, so the user never has to hand over the key again.
+In Claude Code the key goes in the `env` block of `~/.claude/settings.json`. Run
+this with their key in place of `fb_live_xxxxx`. It keeps everything already in
+the file:
+
+```bash
+python3 -c '
+import json, pathlib, sys
+p = pathlib.Path.home() / ".claude" / "settings.json"
+d = json.loads(p.read_text()) if p.exists() else {}
+d.setdefault("env", {})["FORMBHARO_API_KEY"] = sys.argv[1]
+p.parent.mkdir(parents=True, exist_ok=True)
+p.write_text(json.dumps(d, indent=2) + "\n")
+' fb_live_xxxxx
+```
+
+Then tell the user three things: where you put it, that it sits there as plain
+text, and that it will be set on its own from their next session on.
+
+In another tool, save it wherever that tool keeps environment values. If it has
+none, ask the user to add `export FORMBHARO_API_KEY=fb_live_...` to their shell
+startup file.
+
+Saving the key does not fill the variable in the session you are already in, so
+for the rest of this one put the key on the command itself in place of
+`$FORMBHARO_API_KEY`.
 
 The key goes on every request that needs one.
 
