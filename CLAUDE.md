@@ -18,9 +18,15 @@ they can skip has told them nothing and taken a paragraph to do it.
 
 ## Name the thing
 
-Say what the reader is actually asking for, not a stand-in word for it. "Ask your
-tool to build an agent, or to read the answers from your calls", not "ask your tool
-for FormBharo things". If a phrase would sound vague said out loud, it is vague.
+Say what the reader is actually asking for, not a stand-in word for it. If a phrase
+would sound vague said out loud, it is vague.
+
+Two that were in this README and had to be rewritten:
+
+- "ask your tool for FormBharo things". Which things? Write the ask: "build you an
+  agent that asks people their name and age, in Hindi".
+- "your tool", "other tools". Which tool? Name them: Claude Code, Cursor, Windsurf,
+  Codex.
 
 Use the words already in the FormBharo product and the API. Do not invent terms and
 do not turn a phrase into a term with capitals or quotes.
