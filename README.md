@@ -12,8 +12,8 @@ This repository is public. You do not need any credentials to install it.
 
 ## Install
 
-Pick the command for your tool. Without `--agent`, the installer picks whichever
-tool it finds first, which may not be the one you want.
+Pick your command below. Without `--agent`, the installer picks whichever of these
+it finds on your machine first, which may not be the one you want.
 
 ```bash
 # Claude Code
@@ -44,7 +44,9 @@ git clone https://github.com/ARTPARK-SAHAI-ORG/formbharo-skills.git
 cp -r formbharo-skills/skills/formbharo ~/.claude/skills/formbharo
 ```
 
-Use `.cursor/skills/` for Cursor, and the equivalent directory for other tools.
+That path is for Claude Code. Cursor reads `.cursor/skills/`, and Windsurf and
+Codex each have their own skills folder.
+
 Copy the whole `formbharo` folder, not just `SKILL.md`, because `SKILL.md` links to
 the files in its `references/` folder.
 
@@ -64,9 +66,10 @@ Make an API key. Sign in at https://formbharo.artpark.ai, click your profile
 picture in the top right, then **API keys**. The key is shown once and never
 again. It starts with `fb_live_`.
 
-Keep the key to hand. Ask your tool to build an agent, or to read the answers from
-your calls. The first time it needs the key it will ask you for it. Paste it in and
-it saves the key, so you only do that once.
+Keep the key to hand. Now ask Claude Code, Cursor, or whichever one you installed
+this into, to build you an agent: "ask people their name and age, in Hindi". The
+first time it needs your key it will ask for it. Paste it in. It saves the key, so
+you only do that once.
 
 To check a key yourself, put it in `FORMBHARO_API_KEY` and run:
 
