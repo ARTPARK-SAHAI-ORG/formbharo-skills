@@ -1,11 +1,11 @@
 # FormBharo skills
 
-An Agent Skill for the [FormBharo](https://formbharo.artpark.ai) public API.
+Agent Skills for the [FormBharo](https://formbharo.artpark.ai) public API.
 FormBharo runs voice agents that fill in a form by talking to someone on a call.
 
-The skill teaches a coding agent how to build an agent, edit it, pull the answers
-people gave, and read the numbers back. It follows the
-[Agent Skills](https://agentskills.io) open standard, so it works with Claude Code,
+They teach a coding agent how to build an agent, edit it, pull the answers
+people gave, and read the numbers back. They follow the
+[Agent Skills](https://agentskills.io) open standard, so they work with Claude Code,
 Cursor, Windsurf, Codex, and other compatible tools.
 
 This repository is public. You do not need any credentials to install it.
@@ -35,20 +35,35 @@ See what is in here before installing:
 npx skills add ARTPARK-SAHAI-ORG/formbharo-skills --list
 ```
 
-Restart your session after installing so the skill is picked up.
+Restart your session after installing so the skills are picked up.
+
+## First time? Type this
+
+```
+/formbharo-start
+```
+
+It asks what you want to find out on the call, builds the agent, and gives you a
+link you can ring up and try. It asks for your API key along the way and saves it,
+so you paste it once.
+
+After that first agent, just say what you want in your own words. "Add a question
+about age." "Show me last week's calls." "Put the answers in a spreadsheet."
 
 ### Install by hand
 
 ```bash
 git clone https://github.com/ARTPARK-SAHAI-ORG/formbharo-skills.git
 cp -r formbharo-skills/skills/formbharo ~/.claude/skills/formbharo
+cp -r formbharo-skills/skills/formbharo-start ~/.claude/skills/formbharo-start
 ```
 
-That path is for Claude Code. Cursor reads `.cursor/skills/`, and Windsurf and
+Those paths are for Claude Code. Cursor reads `.cursor/skills/`, and Windsurf and
 Codex each have their own skills folder.
 
-Copy the whole `formbharo` folder, not just `SKILL.md`, because `SKILL.md` links to
-the files in its `references/` folder.
+Copy both folders whole, not just the two `SKILL.md` files, because they link to
+the files in `references/`. `formbharo-start` leans on `formbharo`, so you need
+both.
 
 ## What is here
 
@@ -58,6 +73,9 @@ skills/formbharo/
   references/agent-config.md            the shape of an agent: questions, validation, branches
   references/recipes.md                 four jobs, start to finish, with commands that were run
   references/talking-about-results.md   how to report numbers to a person without misleading them
+
+skills/formbharo-start/
+  SKILL.md                              the guided first run: key, first agent, link to call
 ```
 
 ## Before you use it
