@@ -23,9 +23,9 @@ The API is at `https://api.formbharo.artpark.ai`. That address is the same for
 everyone. It is not the address of the web app.
 
 One value comes from the environment: `FORMBHARO_API_KEY`, the key, which starts
-with `fb_live_`. To make one, the user signs in to FormBharo, clicks their profile
-picture in the top right, then **API keys**. The token is shown once and never
-again. A key can do everything the person who made it can do.
+with `fb_live_`. To make one, the user signs in to FormBharo and generates an API
+key from the app. The token is shown once and never again. A key can do
+everything the person who made it can do.
 
 Before doing anything else, check the key works:
 
