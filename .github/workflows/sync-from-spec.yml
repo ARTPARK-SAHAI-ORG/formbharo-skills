@@ -1,0 +1,229 @@
+name: sync-from-spec
+
+# Keep the skill matching the FormBharo API. The skill is hand-written prose, not
+# generated, so this does not regenerate it: it reads what the last production
+# deploy changed in the API and hands that to Claude, which reads the skill and
+# makes the edits the change calls for. The result opens as a pull request for
+# review. Nothing is merged automatically.
+#
+# Where the change comes from: form-fill-agent commits the API schema into the
+# public formbharo-docs repo after every production deploy. That repo's history is
+# therefore the record of what shipped and when, and the difference between its
+# last two versions of that file is what the latest deploy changed. Nothing is
+# stored here, and no token is needed to read a public repo.
+#
+# See .github/SYNC.md for how form-fill-agent triggers this and what to configure.
+on:
+  # Fired by form-fill-agent after a production deploy pushes the schema to docs.
+  repository_dispatch:
+    types: [sync-api-spec]
+  # Weekly fallback, so a deploy that fails to fire the trigger is still caught.
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+# A deploy and the weekly run landing together would both write the same branch
+# and one would lose. Queue them instead.
+concurrency: sync-from-spec
+
+env:
+  DOCS_REPO: https://github.com/ARTPARK-SAHAI-ORG/formbharo-docs.git
+  SCHEMA_PATH: api-reference/openapi.json
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Read what the last deploy changed in the API
+        id: diff
+        run: |
+          set -euo pipefail
+          DOCS="$RUNNER_TEMP/docs"
+
+          # formbharo-docs is public, so this clones with no credentials.
+          # --filter=blob:none fetches file contents only when asked for, which
+          # keeps this to the two versions of the schema actually needed.
+          git clone --quiet --filter=blob:none --no-checkout "$DOCS_REPO" "$DOCS"
+
+          # The two most recent commits that touched the schema. Each one is a
+          # production deploy that changed the API.
+          git -C "$DOCS" log -2 --format=%H -- "$SCHEMA_PATH" > shas.txt
+          NEW=$(sed -n 1p shas.txt)
+          OLD=$(sed -n 2p shas.txt)
+          rm -f shas.txt
+
+          if [ -z "$OLD" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Fewer than two versions of the schema in the docs repo; nothing to compare."
+            exit 0
+          fi
+
+          git -C "$DOCS" show "$OLD:$SCHEMA_PATH" > openapi.old.raw.json
+          git -C "$DOCS" show "$NEW:$SCHEMA_PATH" > openapi.new.raw.json
+
+          # Rewrite both with sorted keys and fixed indentation first, so the diff
+          # shows what actually changed in the API rather than however the schema
+          # happened to be serialised that day.
+          python3 - <<'PY'
+          import json, pathlib
+          for src, dst in (("openapi.old.raw.json", "openapi.old.json"),
+                           ("openapi.new.raw.json", "openapi.new.json")):
+              spec = json.loads(pathlib.Path(src).read_text(encoding="utf-8"))
+              pathlib.Path(dst).write_text(
+                  json.dumps(spec, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+              )
+          PY
+          rm -f openapi.old.raw.json openapi.new.raw.json
+
+          if diff -u openapi.old.json openapi.new.json > spec-diff.txt; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "The last two schema commits are identical; nothing changed."
+            exit 0
+          fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+          # A reformatted schema could produce a diff far larger than is useful to
+          # read. Cap it; Claude can open openapi.new.json for anything cut off.
+          LINES=$(wc -l < spec-diff.txt)
+          echo "The API changed: $LINES diff lines."
+          if [ "$LINES" -gt 2000 ]; then
+            { head -2000 spec-diff.txt
+              printf '\n... diff truncated at 2000 of %s lines. Read openapi.new.json for the rest.\n' "$LINES"
+            } > spec-diff.capped.txt
+            mv spec-diff.capped.txt spec-diff.txt
+          fi
+
+      - name: Work out what the skill needs
+        if: steps.diff.outputs.changed == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: >-
+            --allowed-tools "Read,Write,Edit,Glob,Grep,Bash(python3 scripts/check_skills.py)"
+          prompt: |
+            The FormBharo API changed. `spec-diff.txt` is the difference between
+            the schema of the previous production deploy and the one just
+            deployed; `openapi.new.json` is the full new schema.
+
+            This repo holds the Agent Skill that drives the FormBharo public API.
+            It is instructions read by a coding agent, which then talks to a
+            person.
+
+            Your job:
+
+            1. Read `spec-diff.txt`. Ignore anything cosmetic: reworded
+               descriptions, reordered keys, version bumps, examples.
+            2. For each real change — an endpoint added or removed, a field
+               renamed or added, a changed set of allowed values, a field that
+               became required or stopped being required — search `skills/` for
+               what documents it. Most API changes touch nothing here.
+            3. Where the skill is now wrong or incomplete, edit it. Make the real
+               edit, do not write a report about what is broken. Match the file
+               you are editing: its voice, its heading style, its line wrapping
+               of roughly 80 characters.
+            4. `skills/formbharo/SKILL.md` lists every endpoint in a table. An
+               endpoint added to or removed from the public schema belongs in
+               that table, or gone from it.
+            5. A new endpoint does not automatically deserve its own section. Add
+               one only if it is a whole job someone would ask for by name.
+               Otherwise fold it into the part that already covers that ground.
+            6. Do not write anything about the web app. This repo takes nothing
+               from it beyond the fact that an API key is generated there.
+            7. Anything the skill would SAY to the user must be plain: no field
+               names, no JSON, no HTTP status codes. Precise mechanics stay
+               precise in the agent's own notes.
+            8. Run `python3 scripts/check_skills.py` and fix anything it reports.
+
+            Then write `SYNC_SUMMARY.md`: one short section per file you changed,
+            saying what changed in the API and what you did about it, in plain
+            words. If nothing in the skill needed changing, write exactly
+            `NO CHANGES NEEDED` as the whole of `SYNC_SUMMARY.md` and edit
+            nothing else.
+
+      - name: Decide whether there is anything to open
+        if: steps.diff.outputs.changed == 'true'
+        id: outcome
+        run: |
+          # What was actually edited decides this, not what the summary claims, so
+          # a run that edits the skill but forgets the summary still opens a pull
+          # request rather than throwing the edits away.
+          EDITED=$(git status --porcelain -- skills scripts)
+
+          # The summary is the pull request body, so it is written outside the
+          # repo. Committing it would leave it behind in the merge.
+          BODY="$RUNNER_TEMP/pr-body.md"
+          if [ -f SYNC_SUMMARY.md ] && ! grep -qx "NO CHANGES NEEDED" SYNC_SUMMARY.md; then
+            cp SYNC_SUMMARY.md "$BODY"
+          else
+            printf 'The API changed and the skill was edited to match, but no summary was written. Read the diff.\n' > "$BODY"
+          fi
+          rm -f SYNC_SUMMARY.md spec-diff.txt openapi.old.json openapi.new.json
+
+          if [ -z "$EDITED" ]; then
+            echo "skills=false" >> "$GITHUB_OUTPUT"
+            echo "The API changed but nothing the skill says depends on it."
+            exit 0
+          fi
+          echo "skills=true" >> "$GITHUB_OUTPUT"
+
+          # Say in the pull request whether the edits are installable, so a bad one
+          # is visible before anyone opens the diff.
+          if python3 scripts/check_skills.py; then
+            echo "check=passed" >> "$GITHUB_OUTPUT"
+          else
+            echo "check=FAILED" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open the pull request
+        if: steps.outcome.outputs.skills == 'true'
+        id: pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          # A PAT so skill-check runs on this pull request; one opened with the
+          # default GITHUB_TOKEN does not start further CI.
+          token: ${{ secrets.SKILLS_SYNC_TOKEN || secrets.GITHUB_TOKEN }}
+          commit-message: "Update the skill for the latest FormBharo API"
+          title: "Update the skill for the latest FormBharo API"
+          body-path: ${{ runner.temp }}/pr-body.md
+          # A fixed branch. A rerun over the same API change updates this pull
+          # request instead of opening a second one.
+          branch: automated/spec-sync
+          delete-branch: true
+          # Assignee only. Asking for a review from the account whose token opened
+          # the pull request is rejected by GitHub.
+          assignees: dalmia
+
+      # GitHub already emails the assignee, so this is the extra nudge and not the
+      # notification that matters. A missing mail secret must not fail a run that
+      # has already opened the pull request.
+      - name: Email the pull request link
+        if: steps.pr.outputs.pull-request-number
+        continue-on-error: true
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: ${{ secrets.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          to: aman.dalmia@artpark.in
+          subject: "[formbharo-skills] The API changed and the skill needs a look"
+          body: |
+            The FormBharo API changed, and the skill that depends on it has been
+            updated on a branch for you to review. Nothing has been merged.
+
+            Pull request: ${{ steps.pr.outputs.pull-request-url }}
+            Installable:  ${{ steps.outcome.outputs.check }}
+
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

@@ -1,0 +1,28 @@
+name: skill-check
+
+# main is served live to every `npx skills add ARTPARK-SAHAI-ORG/formbharo-skills`,
+# so a broken edit on main breaks installs for everyone until it is fixed.
+# Validate structure before it lands.
+on: [push, pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate the skill
+        run: python3 scripts/check_skills.py
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Smoke-test that the skills CLI can read this repo. Not a gate: the CLI is
+      # someone else's tool and a bad day of theirs should not block a merge.
+      - name: List the skill via npx
+        run: npx --yes skills list . || true
