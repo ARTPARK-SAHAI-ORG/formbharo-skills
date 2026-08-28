@@ -49,3 +49,8 @@ told to go and read.
 
 Every command in `references/recipes.md` was run against a real server and shows the
 output that came back. Do not add one you have not run.
+
+Every skill opens with a `## Get the latest instructions` section that updates
+itself and tells the agent to re-read the file from disk. `main` is served live,
+so an installed copy can be months old. A new skill copies that section word for
+word and swaps in its own name. `scripts/check_skills.py` fails if it is missing.

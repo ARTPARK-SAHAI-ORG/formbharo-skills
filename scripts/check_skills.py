@@ -7,6 +7,7 @@ and pull request:
 
   - every SKILL.md has YAML frontmatter that parses, with name + description
   - skill `name` matches its directory name (npx skills resolves by name)
+  - every SKILL.md tells the agent to update itself before running
   - no broken relative links between skill files
 
 Needs PyYAML, because the installer reads the frontmatter as YAML and skips a
@@ -49,6 +50,24 @@ def check_frontmatter(problems: list[str]) -> None:
             problems.append(f"{rel}: frontmatter missing `description`")
 
 
+def check_update_line(problems: list[str]) -> None:
+    """Every skill must tell the agent to pull the latest copy of itself first.
+
+    `main` is served live, so a user's installed SKILL.md can be months old.
+    The fix is in the skill itself: each one opens by updating itself, then
+    re-reading the file from disk.
+    """
+    for f in sorted(SKILLS.rglob("SKILL.md")):
+        name = f.parent.name
+        want = f"npx -y skills update {name} -g -y ; npx -y skills update {name} -p -y"
+        if want not in f.read_text(encoding="utf-8"):
+            problems.append(
+                f"{f.relative_to(ROOT)}: missing the self-update line "
+                f"`{want}` (copy the 'Get the latest instructions' section "
+                f"from another skill)"
+            )
+
+
 def check_links(problems: list[str]) -> None:
     """Every relative markdown link must point at a file that exists.
 
@@ -71,6 +90,7 @@ def main() -> int:
 
     problems: list[str] = []
     check_frontmatter(problems)
+    check_update_line(problems)
     check_links(problems)
 
     if problems:
