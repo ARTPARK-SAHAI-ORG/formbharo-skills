@@ -5,17 +5,21 @@
 live, so `main` must always be installable. This gate runs in CI on every push
 and pull request:
 
-  - every SKILL.md has YAML frontmatter with name + description
+  - every SKILL.md has YAML frontmatter that parses, with name + description
   - skill `name` matches its directory name (npx skills resolves by name)
   - no broken relative links between skill files
 
-Stdlib-only; run with `python3 scripts/check_skills.py` from the repo root.
+Needs PyYAML, because the installer reads the frontmatter as YAML and skips a
+file it cannot parse. Run with `python3 scripts/check_skills.py` from the repo
+root.
 """
 from __future__ import annotations
 
 import re
 import sys
 from pathlib import Path
+
+import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS = ROOT / "skills"
@@ -28,15 +32,20 @@ def check_frontmatter(problems: list[str]) -> None:
         if not m:
             problems.append(f"{rel}: missing YAML frontmatter")
             continue
-        fm = m.group(1)
-        name = re.search(r"^name:\s*(\S+)", fm, re.MULTILINE)
+        try:
+            fm = yaml.safe_load(m.group(1))
+        except yaml.YAMLError as e:
+            problems.append(f"{rel}: frontmatter is not valid YAML: {e}")
+            continue
+        if not isinstance(fm, dict):
+            problems.append(f"{rel}: frontmatter is not a set of keys and values")
+            continue
+        name = fm.get("name")
         if not name:
             problems.append(f"{rel}: frontmatter missing `name`")
-        elif name.group(1) != f.parent.name:
-            problems.append(
-                f"{rel}: name '{name.group(1)}' != directory '{f.parent.name}'"
-            )
-        if not re.search(r"^description:", fm, re.MULTILINE):
+        elif name != f.parent.name:
+            problems.append(f"{rel}: name '{name}' != directory '{f.parent.name}'")
+        if not fm.get("description"):
             problems.append(f"{rel}: frontmatter missing `description`")
 
 
