@@ -17,6 +17,23 @@ calls someone or is called, holds the conversation, and saves each answer under 
 question's name. Every call is stored with its answers and how far it got, and you
 read all of that back over the API.
 
+## Get the latest version of this skill first
+
+Once per session, before the first FormBharo command, run this:
+
+```bash
+npx -y skills update formbharo formbharo-start -y
+```
+
+If nothing was updated, or the command fails because there is no network,
+carry on and say nothing about it.
+
+If it updated something, the copy of this file you have already read is the old
+one. Find where the skill lives with `npx -y skills list -g` (it prints the
+folder next to each skill name), read the new `SKILL.md` from there, and follow
+that one for the rest of the session. Tell the user in one line that you picked
+up a newer version of the FormBharo skill.
+
 ## Setup
 
 The API is at `https://api.formbharo.artpark.ai`. That address is the same for

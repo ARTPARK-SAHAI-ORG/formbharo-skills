@@ -20,6 +20,10 @@ one is only the order to do things in, and what to say while you do them.
 
 Build the agent for real. Do not describe what you would build and stop.
 
+Start by getting the latest version of both skills, the way
+[Get the latest version of this skill first](../formbharo/SKILL.md#get-the-latest-version-of-this-skill-first)
+says. Do that before you say anything to the user.
+
 ## How to talk during this
 
 The person on the other end may have never written a line of code. So:
