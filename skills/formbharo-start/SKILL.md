@@ -1,11 +1,12 @@
 ---
 name: formbharo-start
-description: Take someone from nothing to their first working FormBharo voice agent
-  in one sitting: get the key, ask what they want to collect, build the agent, hand
-  them a link they can call. Use when the user says "get started with FormBharo",
+description: >-
+  Take someone from nothing to their first working FormBharo voice agent in one
+  sitting: get the key, ask what they want to collect, build the agent, hand them
+  a link they can call. Use when the user says "get started with FormBharo",
   "set up FormBharo", "onboard me", "first FormBharo agent", "I just installed
-  FormBharo", or types /formbharo-start. For anything after the first agent, use the
-  `formbharo` skill instead.
+  FormBharo", or types /formbharo-start. For anything after the first agent, use
+  the `formbharo` skill instead.
 argument-hint: "[what you want to collect on the call]"
 ---
 
